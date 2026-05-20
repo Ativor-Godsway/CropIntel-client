@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
-  // Close on Escape key
   useEffect(() => {
     const handler = (e) => e.key === 'Escape' && onClose();
     if (isOpen) document.addEventListener('keydown', handler);
@@ -10,33 +9,20 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 
   if (!isOpen) return null;
 
-  const sizes = {
-    sm: 'max-w-sm',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-  };
+  const sizes = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-      {/* Modal panel */}
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
       <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} z-10`}>
-          {/* Header */}
+        <div
+          className={`relative w-full ${sizes[size]} z-10 rounded-2xl overflow-hidden`}
+          style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-lg)' }}
+        >
           {title && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors text-2xl leading-none"
-              >
-                ×
-              </button>
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+              <h2 className="text-lg font-semibold text-theme-text">{title}</h2>
+              <button onClick={onClose} className="text-theme-hint hover:text-theme-muted transition-colors text-2xl leading-none">×</button>
             </div>
           )}
           <div className="px-6 py-4">{children}</div>

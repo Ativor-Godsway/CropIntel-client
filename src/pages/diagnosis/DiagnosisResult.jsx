@@ -2,23 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { getDiagnosis } from '../../api/diagnosis';
 import { PageSpinner } from '../../components/shared/Spinner';
-import SeverityBadge from '../../components/shared/SeverityBadge';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 
-const ConfidenceBar = ({ value }) => {
-  const color = value >= 80 ? 'bg-primary-500' : value >= 60 ? 'bg-amber-500' : 'bg-red-400';
+const BADGE_STYLES = {
+  High:     { bg: 'var(--surface-accent)', color: 'var(--green-bright)', border: 'var(--border-accent)' },
+  Medium:   { bg: 'var(--surface-gold)',   color: 'var(--gold)',         border: 'var(--border-gold)'   },
+  Low:      { bg: 'var(--surface-red)',    color: 'var(--red-text)',     border: 'var(--border-red)'    },
+  Mild:     { bg: 'var(--surface-accent)', color: 'var(--green-bright)', border: 'var(--border-accent)' },
+  Moderate: { bg: 'var(--surface-gold)',   color: 'var(--gold)',         border: 'var(--border-gold)'   },
+  Severe:   { bg: 'var(--surface-red)',    color: 'var(--red-text)',     border: 'var(--border-red)'    },
+};
+
+const Accordion = ({ icon, title, items }) => {
+  const [open, setOpen] = useState(false);
+  if (!items?.length) return null;
+
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all ${color}`}
-          style={{ width: `${value}%` }}
-        />
-      </div>
-      <span className="text-sm font-semibold text-gray-700 w-10 text-right">{value}%</span>
+    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-color)' }}>
+      <button type="button" onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors" style={{ background: 'var(--bg-surface-2)' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-surface-2)'}>
+        <span className="flex items-center gap-2 text-sm font-medium text-theme-80"><span>{icon}</span>{title}<span className="text-xs font-normal text-theme-hint">({items.length})</span></span>
+        <svg className={`w-4 h-4 text-theme-hint transition-transform duration-200 ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+      </button>
+      {open && (
+        <ul style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          {items.map((item, i) => (
+            <li key={i} className="flex items-start gap-3 px-4 py-3 text-sm text-theme-label" style={i > 0 ? { borderTop: '1px solid var(--border-subtle)' } : {}}>
+              <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--surface-accent)', color: 'var(--green-bright)' }}>{i + 1}</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
@@ -33,121 +50,77 @@ const DiagnosisResult = () => {
 
   useEffect(() => {
     if (!diagnosis) {
-      getDiagnosis(id)
-        .then(({ data }) => setDiagnosis(data.diagnosis))
-        .catch(() => {})
-        .finally(() => setLoading(false));
+      getDiagnosis(id).then(({ data }) => setDiagnosis(data.diagnosis)).catch(() => {}).finally(() => setLoading(false));
     }
   }, [id]);
 
   if (loading) return <PageSpinner />;
   if (!diagnosis) return (
-    <div className="text-center py-16 text-gray-500">Diagnosis not found.</div>
+    <div className="text-center py-16 text-theme-muted">
+      Diagnosis not found.{' '}
+      <Link to="/dashboard" className="text-theme-green hover:underline">Back to dashboard</Link>
+    </div>
   );
 
-  const severityColors = {
-    low: 'from-green-50 to-emerald-50 border-green-200',
-    medium: 'from-amber-50 to-yellow-50 border-amber-200',
-    high: 'from-red-50 to-orange-50 border-red-200',
-  };
+  const hdr = BADGE_STYLES[diagnosis.severity] || BADGE_STYLES.Mild;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Header card */}
-      <div className={`card border-l-4 p-6 bg-gradient-to-r ${severityColors[diagnosis.severity]}`}>
-        <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="rounded-2xl p-6" style={{ background: hdr.bg, border: `1px solid ${hdr.border}` }}>
+        <div className="flex items-start justify-between gap-4 mb-3">
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">{diagnosis.cropType} • {formatDate(diagnosis.createdAt)}</p>
-            <h1 className="text-2xl font-bold text-gray-900">{diagnosis.diseaseName}</h1>
+            <p className="text-xs font-semibold uppercase tracking-wide mb-1 text-theme-hint">
+              {diagnosis.cropIdentified} · {formatDate(diagnosis.createdAt)}
+            </p>
+            <h1 className="text-2xl font-bold text-theme-text">{diagnosis.diseaseIdentified}</h1>
           </div>
-          <SeverityBadge severity={diagnosis.severity} />
+          <div className="flex flex-col gap-1.5 flex-shrink-0">
+            {[
+              { key: diagnosis.confidence, label: `${diagnosis.confidence} Confidence` },
+              { key: diagnosis.severity,   label: `${diagnosis.severity} Severity` },
+            ].map(({ key, label }) => {
+              const s = BADGE_STYLES[key];
+              return s ? (
+                <span key={label} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>{label}</span>
+              ) : null;
+            })}
+          </div>
         </div>
-
-        <div>
-          <p className="text-sm text-gray-600 mb-1 font-medium">AI Confidence</p>
-          <ConfidenceBar value={diagnosis.confidence} />
-        </div>
+        {diagnosis.description && <p className="text-sm text-theme-label leading-relaxed">{diagnosis.description}</p>}
       </div>
 
-      {/* Image */}
+      {/* Leaf image */}
       {diagnosis.imageUrl && (
         <div className="card overflow-hidden">
-          <img
-            src={diagnosis.imageUrl}
-            alt="Analyzed leaf"
-            className="w-full max-h-72 object-cover"
-          />
+          <img src={diagnosis.imageUrl} alt="Analyzed crop" className="w-full max-h-72 object-cover" />
         </div>
       )}
 
-      {/* Symptoms */}
-      <div className="card p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <span className="text-xl">🔍</span> Symptoms Detected
-        </h2>
-        <ul className="space-y-2">
-          {diagnosis.symptoms?.map((s, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-              <span className="w-5 h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-0.5 font-bold">
-                {i + 1}
-              </span>
-              {s}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Treatment */}
-      <div className="card p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <span className="text-xl">💊</span> Treatment
-        </h2>
-        <p className="text-sm text-gray-700 leading-relaxed">{diagnosis.treatment}</p>
-      </div>
-
-      {/* Prevention */}
-      <div className="card p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <span className="text-xl">🛡️</span> Prevention
-        </h2>
-        <p className="text-sm text-gray-700 leading-relaxed">{diagnosis.prevention}</p>
+      {/* Accordion */}
+      <div className="card p-6 space-y-2">
+        <h2 className="text-base font-semibold text-theme-text mb-3">Detailed Analysis</h2>
+        <Accordion icon="🦠" title="Causes" items={diagnosis.causes} />
+        <Accordion icon="💊" title="Treatment Steps" items={diagnosis.treatmentSteps} />
+        <Accordion icon="🛡️" title="Prevention Tips" items={diagnosis.preventionTips} />
       </div>
 
       {/* Recommended products */}
-      {diagnosis.recommendedProducts?.length > 0 && (
+      {diagnosis.marketplaceRecommendations?.length > 0 && (
         <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1 flex items-center gap-2">
-            <span className="text-xl">🛒</span> Recommended Products
-          </h2>
-          <p className="text-sm text-gray-500 mb-4">Products that help treat {diagnosis.diseaseName}</p>
+          <h2 className="text-base font-semibold text-theme-text mb-1 flex items-center gap-2"><span>🛒</span> Recommended Products</h2>
+          <p className="text-sm text-theme-muted mb-4">Products that may help treat {diagnosis.diseaseIdentified}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {diagnosis.recommendedProducts.map((product) => (
-              <div key={product._id} className="border border-gray-200 rounded-lg p-3 hover:border-primary-300 transition-colors">
-                {product.images?.[0] && (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-24 object-cover rounded mb-2"
-                  />
-                )}
-                <p className="text-xs font-medium text-gray-800 line-clamp-2 mb-1">{product.name}</p>
-                <p className="text-xs font-bold text-primary-600 mb-2">{formatCurrency(product.price)}</p>
-                <button
-                  onClick={() => {
-                    addItem(product, 1);
-                    toast.success(`${product.name} added to cart`);
-                  }}
-                  className="w-full text-xs btn-primary py-1"
-                >
-                  Add to Cart
-                </button>
+            {diagnosis.marketplaceRecommendations.map((product) => (
+              <div key={product._id} className="rounded-xl p-3 transition-colors" style={{ border: '1px solid var(--border-color)', background: 'var(--bg-surface-2)' }}>
+                {product.images?.[0] && <img src={product.images[0]} alt={product.name} className="w-full h-24 object-cover rounded-lg mb-2" />}
+                <p className="text-xs font-medium text-theme-text line-clamp-2 mb-1">{product.name}</p>
+                <p className="text-xs font-bold text-theme-green mb-2">{formatCurrency(product.price)}</p>
+                <button onClick={() => { addItem(product, 1); toast.success(`${product.name} added to cart`); }} className="btn-primary w-full text-xs py-1.5 rounded-lg">Add to Cart</button>
               </div>
             ))}
           </div>
-          <Link
-            to={`/marketplace?disease=${encodeURIComponent(diagnosis.diseaseName)}`}
-            className="inline-flex items-center gap-1 text-sm text-primary-600 hover:underline mt-3"
-          >
+          <Link to={`/marketplace?disease=${encodeURIComponent(diagnosis.diseaseIdentified)}`} className="inline-flex items-center gap-1 text-sm text-theme-green hover:underline mt-4">
             See all treatments in marketplace →
           </Link>
         </div>
@@ -155,12 +128,8 @@ const DiagnosisResult = () => {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Link to="/diagnosis" className="btn-secondary flex-1 justify-center py-2.5">
-          New Diagnosis
-        </Link>
-        <Link to="/dashboard" className="btn-primary flex-1 justify-center py-2.5">
-          View History
-        </Link>
+        <Link to="/diagnosis" className="btn-secondary flex-1 justify-center py-2.5">New Diagnosis</Link>
+        <Link to="/dashboard" className="btn-primary flex-1 justify-center py-2.5">View History</Link>
       </div>
     </div>
   );

@@ -121,15 +121,15 @@ const ListProduct = () => {
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">
+      <h2 className="text-xl font-bold text-theme-text mb-6">
         {isEdit ? 'Edit Product' : 'List a New Product'}
       </h2>
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-5">
         {/* Images */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Product Images <span className="text-gray-400 font-normal">(max 4)</span>
+          <label className="block text-sm font-medium text-cream/70 mb-2">
+            Product Images <span className="text-theme-hint font-normal">(max 4)</span>
           </label>
           <div className="flex flex-wrap gap-3 mb-3">
             {previews.map((src, i) => (
@@ -148,7 +148,7 @@ const ListProduct = () => {
               <button
                 type="button"
                 onClick={() => fileRef.current.click()}
-                className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-primary-400 hover:text-primary-500 transition-colors"
+                className="w-24 h-24 rounded-lg flex flex-col items-center justify-center transition-colors hover:bg-theme-surface" style={{ border: '2px dashed var(--border-strong)', color: 'var(--text-40)' }}
               >
                 <svg className="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -168,7 +168,7 @@ const ListProduct = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+          <label className="block text-sm font-medium text-theme-label mb-1">Product Name *</label>
           <input
             type="text"
             className="input"
@@ -180,7 +180,7 @@ const ListProduct = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+          <label className="block text-sm font-medium text-theme-label mb-1">Description *</label>
           <textarea
             className="input min-h-[100px] resize-y"
             placeholder="Describe your product, its uses, and key benefits..."
@@ -192,7 +192,7 @@ const ListProduct = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+            <label className="block text-sm font-medium text-theme-label mb-1">Category *</label>
             <select
               className="input"
               value={form.category}
@@ -206,7 +206,7 @@ const ListProduct = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Stock *</label>
+            <label className="block text-sm font-medium text-theme-label mb-1">Stock *</label>
             <input
               type="number"
               min="0"
@@ -220,11 +220,11 @@ const ListProduct = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-theme-label mb-1">
             Price (GHS) *
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium">₵</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-theme-40 font-medium">₵</span>
             <input
               type="number"
               min="0"
@@ -239,8 +239,8 @@ const ListProduct = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Target Diseases <span className="text-gray-400 font-normal">(comma-separated)</span>
+          <label className="block text-sm font-medium text-theme-label mb-1">
+            Target Diseases <span className="text-theme-hint font-normal">(comma-separated)</span>
           </label>
           <input
             type="text"
@@ -249,7 +249,7 @@ const ListProduct = () => {
             value={form.targetDiseases}
             onChange={(e) => setForm({ ...form, targetDiseases: e.target.value })}
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-theme-hint mt-1">
             Used by AI to recommend this product after disease diagnosis
           </p>
         </div>

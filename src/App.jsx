@@ -41,6 +41,9 @@ import FarmerDashboard from './pages/dashboard/FarmerDashboard';
 // Profile
 import ProfilePage from './pages/profile/ProfilePage';
 
+// Landing
+import Home from './pages/Home';
+
 // ─── Route guards ─────────────────────────────────────────────────────────────
 
 // Redirects to /login if not authenticated
@@ -72,72 +75,13 @@ const SellerRoute = () => {
 const AppLayout = () => (
   <div className="flex flex-col min-h-screen">
     <Navbar />
-    <main className="flex-1">
+    <main className="flex-1 pt-16">
       <Outlet />
     </main>
     <Footer />
   </div>
 );
 
-// ─── Home / landing ───────────────────────────────────────────────────────────
-
-const Home = () => {
-  const { user } = useAuth();
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      {/* Hero */}
-      <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 bg-primary-100 text-primary-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-          🌱 AI-powered crop disease diagnosis
-        </div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-          Protect Your Farm<br />
-          <span className="text-primary-600">with AI Intelligence</span>
-        </h1>
-        <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
-          Upload a photo of your affected crop leaf and get an instant AI diagnosis,
-          treatment advice, and access to Ghana's top farming marketplace.
-        </p>
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          {user ? (
-            <>
-              <a href="/diagnosis" className="btn-primary px-6 py-3 text-base">
-                🔬 Diagnose Crop Now
-              </a>
-              <a href="/marketplace" className="btn-secondary px-6 py-3 text-base">
-                Browse Marketplace
-              </a>
-            </>
-          ) : (
-            <>
-              <a href="/register" className="btn-primary px-6 py-3 text-base">
-                Get Started Free
-              </a>
-              <a href="/marketplace" className="btn-secondary px-6 py-3 text-base">
-                Browse Marketplace
-              </a>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Feature grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          { icon: '🔬', title: 'AI Diagnosis', desc: 'Claude AI analyzes your leaf photos to identify diseases with up to 95% confidence.' },
-          { icon: '💊', title: 'Treatment Advice', desc: 'Get specific, actionable treatment and prevention recommendations tailored to your crops.' },
-          { icon: '🛒', title: 'Shop Treatments', desc: 'Buy recommended fungicides, pesticides and seeds directly from verified Ghanaian sellers.' },
-        ].map((f) => (
-          <div key={f.title} className="card p-6 text-center hover:shadow-md transition-shadow">
-            <div className="text-4xl mb-3">{f.icon}</div>
-            <h3 className="font-semibold text-gray-800 mb-2">{f.title}</h3>
-            <p className="text-sm text-gray-500">{f.desc}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 

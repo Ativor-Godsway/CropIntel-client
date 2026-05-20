@@ -14,17 +14,13 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-      return toast.error('Passwords do not match');
-    }
-    if (form.password.length < 8) {
-      return toast.error('Password must be at least 8 characters');
-    }
+    if (form.password !== form.confirmPassword) return toast.error('Passwords do not match');
+    if (form.password.length < 8) return toast.error('Password must be at least 8 characters');
     setLoading(true);
     try {
       const { data } = await apiRegister({ name: form.name, email: form.email, password: form.password });
       login(data.accessToken, data.user);
-      toast.success('Account created! Welcome to Farmly.');
+      toast.success('Account created! Welcome to CropIntel.');
       navigate('/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
@@ -34,80 +30,42 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-green-100 px-4 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8" style={{ background: 'var(--bg-primary)' }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, var(--hero-glow-1) 0%, transparent 60%)' }} />
+
+      <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <span className="text-2xl font-bold text-primary-700">Farmly</span>
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
+            <span className="w-2 h-2 rounded-full bg-theme-green animate-pulse-dot" />
+            <span className="font-display text-2xl font-light text-theme-text">CropIntel</span>
           </Link>
-          <p className="text-gray-500 text-sm">Create your free account</p>
+          <p className="text-sm text-theme-muted">Create your free account</p>
         </div>
 
-        <div className="card p-8">
-          <h1 className="text-xl font-bold text-gray-800 mb-6">Create account</h1>
+        <div className="glass-card p-8">
+          <h1 className="text-xl font-semibold text-theme-text mb-6">Create account</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <input
-                type="text"
-                className="input"
-                placeholder="Kofi Mensah"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                className="input"
-                placeholder="kofi@example.com"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
-                className="input"
-                placeholder="Min. 8 characters"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-              <input
-                type="password"
-                className="input"
-                placeholder="Repeat password"
-                value={form.confirmPassword}
-                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                required
-              />
-            </div>
+            {[
+              { label: 'Full Name', type: 'text', key: 'name', placeholder: 'Kofi Mensah' },
+              { label: 'Email', type: 'email', key: 'email', placeholder: 'kofi@example.com' },
+              { label: 'Password', type: 'password', key: 'password', placeholder: 'Min. 8 characters' },
+              { label: 'Confirm Password', type: 'password', key: 'confirmPassword', placeholder: 'Repeat password' },
+            ].map(({ label, type, key, placeholder }) => (
+              <div key={key}>
+                <label className="block text-sm font-medium mb-1.5 text-theme-label">{label}</label>
+                <input type={type} className="input" placeholder={placeholder} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} required />
+              </div>
+            ))}
             <button type="submit" className="btn-primary w-full py-2.5" disabled={loading}>
               {loading ? <Spinner size="sm" /> : 'Create account'}
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-4">
-            By signing up you agree to our Terms & Privacy Policy.
-          </p>
-
-          <p className="text-center text-sm text-gray-500 mt-3">
+          <p className="text-center text-xs mt-4 text-theme-hint">By signing up you agree to our Terms & Privacy Policy.</p>
+          <p className="text-center text-sm mt-3 text-theme-muted">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary-600 font-medium hover:underline">Sign in</Link>
+            <Link to="/login" className="text-theme-green font-medium hover:underline">Sign in</Link>
           </p>
         </div>
       </div>

@@ -2,12 +2,13 @@ import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMe } from '../../api/auth';
+import { setAccessToken } from '../../api/axios';
 import { PageSpinner } from '../../components/shared/Spinner';
 
 const GoogleCallback = () => {
   const [params] = useSearchParams();
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
 
   useEffect(() => {
     const token = params.get('token');
@@ -16,15 +17,15 @@ const GoogleCallback = () => {
       return;
     }
 
-    // Store token and fetch user profile
-    localStorage.setItem('accessToken', token);
+    // Store token in memory (not localStorage) and fetch user profile
+    setAccessToken(token);
     getMe()
       .then(({ data }) => {
         login(token, data.user);
         navigate('/dashboard');
       })
       .catch(() => {
-        localStorage.removeItem('accessToken');
+        setAccessToken(null);
         navigate('/login?error=google_failed');
       });
   }, []);

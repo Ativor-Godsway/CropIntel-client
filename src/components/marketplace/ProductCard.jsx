@@ -5,11 +5,11 @@ import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 
 const CATEGORY_COLORS = {
-  fertilizer: 'bg-green-100 text-green-700',
-  pesticide: 'bg-red-100 text-red-700',
-  seed: 'bg-amber-100 text-amber-700',
-  tool: 'bg-blue-100 text-blue-700',
-  other: 'bg-gray-100 text-gray-700',
+  fertilizer: { bg: 'var(--surface-accent)',    color: 'var(--green-bright)' },
+  pesticide:  { bg: 'var(--surface-red)',        color: 'var(--red-text)'    },
+  seed:       { bg: 'var(--surface-gold)',       color: 'var(--gold)'        },
+  tool:       { bg: 'var(--surface-blue)',       color: '#60a5fa'            },
+  other:      { bg: 'var(--bg-surface)',         color: 'var(--text-muted)'  },
 };
 
 const ProductCard = ({ product }) => {
@@ -23,47 +23,41 @@ const ProductCard = ({ product }) => {
     toast.success(`${product.name} added to cart`);
   };
 
+  const cat = CATEGORY_COLORS[product.category] || CATEGORY_COLORS.other;
+
   return (
-    <Link to={`/marketplace/${product._id}`} className="card flex flex-col hover:shadow-md transition-shadow group">
-      {/* Image */}
-      <div className="relative overflow-hidden bg-gray-100 h-44">
+    <Link to={`/marketplace/${product._id}`} className="flex flex-col rounded-2xl overflow-hidden transition-all hover:-translate-y-0.5 group" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+      <div className="relative overflow-hidden h-44" style={{ background: 'var(--bg-surface)' }}>
         {product.images?.[0] ? (
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl">🌿</div>
         )}
-        <span className={`absolute top-2 left-2 text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[product.category]}`}>
+        <span className="absolute top-2 left-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: cat.bg, color: cat.color }}>
           {product.category}
         </span>
         {product.stock === 0 && (
-          <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-            <span className="text-sm font-semibold text-gray-500">Out of Stock</span>
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'var(--overlay-bg)' }}>
+            <span className="text-sm font-semibold text-theme-muted">Out of Stock</span>
           </div>
         )}
       </div>
 
-      {/* Content */}
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 group-hover:text-primary-600 transition-colors">
-          {product.name}
-        </h3>
+        <h3 className="text-sm font-semibold text-theme-text line-clamp-2 mb-1 group-hover:text-theme-green transition-colors">{product.name}</h3>
         {product.seller?.sellerProfile?.businessName && (
-          <p className="text-xs text-gray-400 mb-2">{product.seller.sellerProfile.businessName}</p>
+          <p className="text-xs text-theme-40 mb-2">{product.seller.sellerProfile.businessName}</p>
         )}
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="text-base font-bold text-primary-600">{formatCurrency(product.price)}</span>
+          <span className="text-base font-bold text-theme-green">{formatCurrency(product.price)}</span>
           <button
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors
-              ${inCart
-                ? 'bg-primary-100 text-primary-700 border border-primary-200'
-                : 'bg-primary-600 text-white hover:bg-primary-700'
-              } disabled:opacity-40 disabled:cursor-not-allowed`}
+            className="text-xs px-3 py-1.5 rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={inCart
+              ? { background: 'var(--surface-accent)', color: 'var(--green-bright)', border: '1px solid var(--border-accent)' }
+              : { background: 'var(--green-bright)', color: 'var(--green-btn-text)' }
+            }
           >
             {inCart ? '✓ In Cart' : 'Add to Cart'}
           </button>

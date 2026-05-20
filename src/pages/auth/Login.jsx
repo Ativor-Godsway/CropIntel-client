@@ -26,51 +26,32 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = '/api/auth/google';
-  };
+  const handleGoogleLogin = () => { window.location.href = '/api/auth/google'; };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-green-100 px-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-primary)' }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, var(--hero-glow-1) 0%, transparent 60%)' }} />
+
+      <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <span className="text-2xl font-bold text-primary-700">Farmly</span>
-          </div>
-          <p className="text-gray-500 text-sm">AI-powered crop disease diagnosis</p>
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
+            <span className="w-2 h-2 rounded-full bg-theme-green animate-pulse-dot" />
+            <span className="font-display text-2xl font-light text-theme-text">CropIntel</span>
+          </Link>
+          <p className="text-sm text-theme-muted">AI-powered crop disease diagnosis</p>
         </div>
 
-        <div className="card p-8">
-          <h1 className="text-xl font-bold text-gray-800 mb-6">Welcome back</h1>
+        <div className="glass-card p-8">
+          <h1 className="text-xl font-semibold text-theme-text mb-6">Welcome back</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                className="input"
-                placeholder="kofi@farmly.gh"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
+              <label className="block text-sm font-medium mb-1.5 text-theme-label">Email</label>
+              <input type="email" className="input" placeholder="kofi@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
-                className="input"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-              />
+              <label className="block text-sm font-medium mb-1.5 text-theme-label">Password</label>
+              <input type="password" className="input" placeholder="••••••••" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
             </div>
             <button type="submit" className="btn-primary w-full py-2.5" disabled={loading}>
               {loading ? <Spinner size="sm" /> : 'Sign in'}
@@ -79,18 +60,15 @@ const Login = () => {
 
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full" style={{ borderTop: '1px solid var(--border-color)' }} />
             </div>
-            <div className="relative flex justify-center text-xs text-gray-400">
-              <span className="bg-white px-3">or continue with</span>
+            <div className="relative flex justify-center text-xs text-theme-hint">
+              <span className="px-3" style={{ background: 'var(--bg-card)' }}>or continue with</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <button
-              onClick={handleGoogleLogin}
-              className="btn-secondary w-full py-2.5 gap-2"
-            >
+            <button onClick={handleGoogleLogin} className="btn-secondary w-full py-2.5 gap-2">
               <svg className="w-4 h-4" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                 <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -99,14 +77,12 @@ const Login = () => {
               </svg>
               Continue with Google
             </button>
-            <Link to="/login/phone" className="btn-secondary w-full py-2.5 gap-2 text-center block">
-              <span>📱 Continue with Phone</span>
-            </Link>
+            <Link to="/login/phone" className="btn-secondary w-full py-2.5 gap-2 text-center block">📱 Continue with Phone</Link>
           </div>
 
-          <p className="text-center text-sm text-gray-500 mt-5">
+          <p className="text-center text-sm mt-5 text-theme-muted">
             Don't have an account?{' '}
-            <Link to="/register" className="text-primary-600 font-medium hover:underline">Sign up</Link>
+            <Link to="/register" className="text-theme-green font-medium hover:underline">Sign up</Link>
           </p>
         </div>
       </div>

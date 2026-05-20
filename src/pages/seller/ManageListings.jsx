@@ -9,17 +9,13 @@ import EmptyState from '../../components/shared/EmptyState';
 const ManageListings = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [confirming, setConfirming] = useState(null); // productId being deleted
+  const [confirming, setConfirming] = useState(null);
   const toast = useToast();
 
   const fetchProducts = () => {
     setLoading(true);
-    getSellerProducts()
-      .then(({ data }) => setProducts(data.products))
-      .catch(() => toast.error('Failed to load listings'))
-      .finally(() => setLoading(false));
+    getSellerProducts().then(({ data }) => setProducts(data.products)).catch(() => toast.error('Failed to load listings')).finally(() => setLoading(false));
   };
-
   useEffect(fetchProducts, []);
 
   const handleToggle = async (id) => {
@@ -27,9 +23,7 @@ const ManageListings = () => {
       const { data } = await toggleProduct(id);
       setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, isActive: data.isActive } : p)));
       toast.success(data.isActive ? 'Listing activated' : 'Listing deactivated');
-    } catch {
-      toast.error('Failed to toggle listing');
-    }
+    } catch { toast.error('Failed to toggle listing'); }
   };
 
   const handleDelete = async (id) => {
@@ -37,116 +31,65 @@ const ManageListings = () => {
       await deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p._id !== id));
       toast.success('Product deleted');
-    } catch {
-      toast.error('Failed to delete product');
-    } finally {
-      setConfirming(null);
-    }
+    } catch { toast.error('Failed to delete product'); } finally { setConfirming(null); }
   };
 
   if (loading) return <PageSpinner />;
-
-  if (products.length === 0) {
-    return (
-      <EmptyState
-        icon="📦"
-        title="No listings yet"
-        description="Start selling by listing your first product."
-        action={<Link to="/seller/list" className="btn-primary">List a Product</Link>}
-      />
-    );
-  }
+  if (products.length === 0) return <EmptyState icon="📦" title="No listings yet" description="Start selling by listing your first product." action={<Link to="/seller/list" className="btn-primary">List a Product</Link>} />;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-gray-500">{products.length} product{products.length !== 1 ? 's' : ''}</p>
+        <p className="text-sm text-theme-dim">{products.length} product{products.length !== 1 ? 's' : ''}</p>
         <Link to="/seller/list" className="btn-primary text-xs">+ List New Product</Link>
       </div>
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead style={{ background: 'var(--bg-surface-2)', borderBottom: '1px solid var(--border-subtle)' }}>
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Product</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600 hidden sm:table-cell">Category</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Price</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Stock</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Actions</th>
+                {['Product','Category','Price','Stock','Status','Actions'].map((h, i) => (
+                  <th key={h} className={`px-4 py-3 font-medium text-xs text-theme-hint ${i < 2 ? 'text-left' : i < 4 ? 'text-right' : 'text-center'} ${i === 1 ? 'hidden sm:table-cell' : ''}`}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {products.map((p) => (
-                <tr key={p._id} className="hover:bg-gray-50 transition-colors">
+            <tbody>
+              {products.map((p, idx) => (
+                <tr key={p._id} className="transition-colors hover:bg-theme-surface-2" style={idx > 0 ? { borderTop: '1px solid var(--border-subtle)' } : {}}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                        {p.images?.[0]
-                          ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
-                          : <div className="w-full h-full flex items-center justify-center text-lg">🌿</div>
-                        }
+                      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0" style={{ background: 'var(--bg-surface)' }}>
+                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg">🌿</div>}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800 line-clamp-1">{p.name}</p>
-                        <p className="text-xs text-gray-400">{p.sales} sold</p>
+                        <p className="font-medium text-theme-text line-clamp-1">{p.name}</p>
+                        <p className="text-xs text-theme-hint">{p.sales} sold</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
-                    <span className="text-xs capitalize text-gray-600">{p.category}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right font-semibold text-primary-600">
-                    {formatCurrency(p.price)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-medium ${p.stock <= 5 ? 'text-red-600' : 'text-gray-700'}`}>
-                      {p.stock}
-                    </span>
-                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell"><span className="text-xs capitalize text-theme-dim">{p.category}</span></td>
+                  <td className="px-4 py-3 text-right font-semibold text-theme-green">{formatCurrency(p.price)}</td>
+                  <td className="px-4 py-3 text-right"><span className="text-sm font-medium" style={{ color: p.stock <= 5 ? 'var(--red-text)' : 'var(--text-label)' }}>{p.stock}</span></td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => handleToggle(p._id)}
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium transition-colors
-                        ${p.isActive
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                        }`}
-                    >
+                    <button onClick={() => handleToggle(p._id)} className="px-2 py-0.5 rounded-full text-xs font-medium transition-colors"
+                      style={p.isActive
+                        ? { background: 'var(--surface-accent)', color: 'var(--green-bright)' }
+                        : { background: 'var(--bg-surface)', color: 'var(--text-dim)' }
+                      }>
                       {p.isActive ? '● Active' : '○ Inactive'}
                     </button>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <Link
-                        to={`/seller/edit/${p._id}`}
-                        className="text-xs text-blue-600 hover:underline"
-                      >
-                        Edit
-                      </Link>
+                      <Link to={`/seller/edit/${p._id}`} className="text-xs text-theme-green hover:underline">Edit</Link>
                       {confirming === p._id ? (
                         <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleDelete(p._id)}
-                            className="text-xs text-red-600 font-semibold hover:underline"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => setConfirming(null)}
-                            className="text-xs text-gray-400 hover:underline"
-                          >
-                            Cancel
-                          </button>
+                          <button onClick={() => handleDelete(p._id)} className="text-xs text-theme-red font-semibold hover:underline">Confirm</button>
+                          <button onClick={() => setConfirming(null)} className="text-xs text-theme-hint hover:underline">Cancel</button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => setConfirming(p._id)}
-                          className="text-xs text-red-400 hover:text-red-600"
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => setConfirming(p._id)} className="text-xs text-theme-red opacity-60 hover:opacity-100">Delete</button>
                       )}
                     </div>
                   </td>
