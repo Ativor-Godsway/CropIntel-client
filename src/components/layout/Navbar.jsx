@@ -61,19 +61,16 @@ const Navbar = () => {
 
           {/* Center nav */}
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/diagnosis" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">Diagnose</Link>
+            {user && (
+              <Link to="/diagnosis" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">Diagnose</Link>
+            )}
             <Link to="/marketplace" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">Marketplace</Link>
-            {user ? (
+            {user && (
               user.activeRole === 'seller' ? (
                 <Link to="/seller" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">Seller Hub</Link>
               ) : (
                 <Link to="/dashboard" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">Dashboard</Link>
               )
-            ) : (
-              <>
-                <Link to="/" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">For Farmers</Link>
-                <Link to="/marketplace" className="text-sm text-theme-nav-link hover:text-theme-text transition-colors">About</Link>
-              </>
             )}
           </div>
 
@@ -188,7 +185,9 @@ const Navbar = () => {
           style={{ background: 'var(--dropdown-bg)', borderTop: '1px solid var(--border-subtle)' }}
         >
           <Link to="/marketplace" className="block py-2.5 text-sm text-theme-muted hover:text-theme-text" onClick={() => setMenuOpen(false)}>Marketplace</Link>
-          <Link to="/diagnosis" className="block py-2.5 text-sm text-theme-muted hover:text-theme-text" onClick={() => setMenuOpen(false)}>Diagnose</Link>
+          {user && (
+            <Link to="/diagnosis" className="block py-2.5 text-sm text-theme-muted hover:text-theme-text" onClick={() => setMenuOpen(false)}>Diagnose</Link>
+          )}
           {user ? (
             <>
               <Link to={user.activeRole === 'seller' ? '/seller' : '/dashboard'} className="block py-2.5 text-sm text-theme-muted hover:text-theme-text" onClick={() => setMenuOpen(false)}>
