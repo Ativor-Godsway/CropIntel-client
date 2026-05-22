@@ -92,7 +92,7 @@ const ListProduct = () => {
       formData.append('category', form.category);
       formData.append('targetDiseases', form.targetDiseases);
       formData.append('price', parseToPesewas(form.price));
-      formData.append('stock', form.stock);
+      formData.append('stock', Number(form.stock));
 
       // Append new image files for Cloudinary upload via multer
       images.forEach((file) => formData.append('images', file));

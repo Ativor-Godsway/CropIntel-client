@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 // ── In-memory access token store ──────────────────────────────────────────────
-// Never stored in localStorage or sessionStorage — lives only in module memory.
 let _accessToken = null;
 
 export const setAccessToken = (token) => { _accessToken = token; };
@@ -10,8 +9,9 @@ export const clearAccessToken = () => { _accessToken = null; };
 
 // ── Axios instance ────────────────────────────────────────────────────────────
 const api = axios.create({
-  baseURL:         import.meta.env.VITE_API_URL || '/api',
-  withCredentials: true, // sends the httpOnly refresh-token cookie automatically
+  baseURL:         import.meta.env.VITE_API_URL,
+  withCredentials: true,
+  timeout:         30000,
 });
 
 // Attach access token from memory on every request
@@ -22,27 +22,52 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401 — attempt a silent token refresh once, then retry the original request.
-// If the refresh also fails, clear auth state and redirect to /login.
+// ── 401 queue — prevents parallel refresh races ───────────────────────────────
+let isRefreshing = false;
+let failedQueue  = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token)));
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retry) {
+    if (
+      error.response?.status === 401 &&
+      !original._retry &&
+      !original.url?.includes('refresh-token') &&
+      !original.url?.includes('login')
+    ) {
+      // Queue additional 401s while a refresh is in flight
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          original.headers.Authorization = `Bearer ${token}`;
+          return api(original);
+        });
+      }
+
       original._retry = true;
+      isRefreshing    = true;
+
       try {
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL || '/api'}/auth/refresh-token`,
-          {},
-          { withCredentials: true }
-        );
+        const { data } = await api.post('/auth/refresh-token');
         setAccessToken(data.accessToken);
+        processQueue(null, data.accessToken);
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(original);
-      } catch {
+      } catch (err) {
+        processQueue(err, null);
         clearAccessToken();
         window.location.href = '/login';
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
       }
     }
 

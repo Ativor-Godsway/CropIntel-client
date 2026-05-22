@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { setAccessToken, clearAccessToken } from '../api/axios';
+import api, { setAccessToken, clearAccessToken } from '../api/axios';
 import { logout as apiLogout, toggleRole as apiToggleRole } from '../api/auth';
 
 const AuthContext = createContext(null);
@@ -13,11 +12,7 @@ export const AuthProvider = ({ children }) => {
   // httpOnly refresh-token cookie. No localStorage involved.
   const restoreSession = useCallback(async () => {
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL || '/api'}/auth/refresh-token`,
-        {},
-        { withCredentials: true }
-      );
+      const { data } = await api.post('/auth/refresh-token');
       setAccessToken(data.accessToken);
       setUser(data.user);
     } catch {
