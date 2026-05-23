@@ -27,6 +27,7 @@ import ProductDetail from './pages/marketplace/ProductDetail';
 import Cart from './pages/marketplace/Cart';
 import Checkout from './pages/marketplace/Checkout';
 import CheckoutVerify from './pages/marketplace/CheckoutVerify';
+import OrderSuccess from './pages/marketplace/OrderSuccess';
 
 // Seller pages
 import SellerDashboard from './pages/seller/SellerDashboard';
@@ -116,6 +117,7 @@ const App = () => (
                 <Route path="/diagnosis/result/:id" element={<DiagnosisResult />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/checkout/verify" element={<CheckoutVerify />} />
+                <Route path="/orders/success" element={<OrderSuccess />} />
                 <Route path="/profile" element={<ProfilePage />} />
 
                 {/* Seller-only routes */}
